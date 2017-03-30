@@ -191,25 +191,25 @@ def move_to_dir_and_flatten(source_dir, target_dir, name_match):
             os.rename(curr_fp, os.path.join(target_dir, curr_fname))
 
 
-def unzip_and_flatten_files(top_fastqs_dir, ext_name, gzip_ext_name, keep_gzs):		
-    # first, recursively unzip all <ext_name><gzip_ext_name> (e.g., .fastq.gz) files anywhere under the input dir		
-    gunzip_wildpath(top_fastqs_dir, ext_name + gzip_ext_name, keep_gzs, True)  # True = do recursive		
-    # now move all fastqs to top-level directory so don't have to work recursively in future		
+def unzip_and_flatten_files(top_fastqs_dir, ext_name, gzip_ext_name, keep_gzs):
+    # first, recursively unzip all <ext_name><gzip_ext_name> (e.g., .fastq.gz) files anywhere under the input dir
+    gunzip_wildpath(top_fastqs_dir, ext_name + gzip_ext_name, keep_gzs, True)  # True = do recursive
+    # now move all fastqs to top-level directory so don't have to work recursively in future
     move_to_dir_and_flatten(top_fastqs_dir, top_fastqs_dir, ext_name)
 
 
 def list_and_unzip_files(fastq_top_dir, ext_name, keep_gzs):
     gzip_ext_name = ".gz"
-    
+
     # examine the existing compressed files
     logging.info("{0}{1} files:".format(ext_name, gzip_ext_name))
-    logging.info(summarize_filenames_for_prefix_and_suffix(fastq_top_dir, "", 
-                                                    "{0}{1}".format(ext_name, gzip_ext_name), 
-                                                    all_subdirs=True))    
-    
+    logging.info(summarize_filenames_for_prefix_and_suffix(fastq_top_dir, "",
+                                                           "{0}{1}".format(ext_name, gzip_ext_name),
+                                                           all_subdirs=True))
+
     # uncompress them and move them to the top directory
     unzip_and_flatten_files(fastq_top_dir, ext_name, gzip_ext_name, keep_gzs)
-    
+
     # examine the existing uncompressed files
     logging.info("\n{0} files:".format(ext_name))
     logging.info(summarize_filenames_for_prefix_and_suffix(fastq_top_dir, "", ext_name))

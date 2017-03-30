@@ -76,24 +76,24 @@ def trim_seq(input_seq, retain_len, retain_5p_end):
 
 
 def merge_igm_files_by_lane_read_set(input_files_dir, output_files_dir, file_suffix):
-    read_direction_identifiers = ["_R1_", "_R2_"]    
+    read_direction_identifiers = ["_R1_", "_R2_"]
     for curr_direction_id in read_direction_identifiers:
-        wildpath = "{0}*{1}".format(curr_direction_id, file_suffix) 
+        wildpath = "{0}*{1}".format(curr_direction_id, file_suffix)
         relevant_filepaths = get_filepaths_from_wildcard(input_files_dir, wildpath)
-        
+
         direction_regex = "_L\d\d\d{0}\d\d\d".format(curr_direction_id)
         merge_files_grouped_by_regex(relevant_filepaths, direction_regex, output_files_dir, file_suffix)
-                    
-                    
+
+
 def merge_files_grouped_by_regex(relevant_filepaths, relevant_regex, output_files_dir, file_suffix):
     fps_by_base = group_files(relevant_filepaths, relevant_regex, replacement="")
     for curr_base in fps_by_base:
         output_fp = make_file_path(output_files_dir, curr_base, file_suffix)
         if os.path.isfile(output_fp):
             raise ValueError("Output file '{0}' already exists.".format(output_fp))
-            
-        with open(output_fp,'wb') as output_f:
+
+        with open(output_fp, 'wb') as output_f:
             for input_fp in fps_by_base[curr_base]:
-                with open(input_fp,'rb') as input_f:
+                with open(input_fp, 'rb') as input_f:
                     logging.info("Adding {0} to {1}".format(input_fp, output_fp))
                     shutil.copyfileobj(input_f, output_f)
