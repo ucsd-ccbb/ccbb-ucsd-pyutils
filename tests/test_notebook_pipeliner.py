@@ -6,7 +6,6 @@ import unittest
 import ccbb_pyutils.notebook_runner as ns_runner
 
 import ccbb_pyutils.notebook_pipeliner as ns_test
-import tests.test_notebook_runner as ns_test_nb_runner
 
 
 class TestFunctions(unittest.TestCase):
@@ -15,20 +14,279 @@ class TestFunctions(unittest.TestCase):
     # no tests for _execute_run because it is high-level and thus a pain to test, but is made up of just calls
     # to tested functions (_add_run_prefix_and_dir_to_params, _create_run_and_methods_dirs, _run_and_output_notebook)
 
+    @staticmethod
+    def write_temp_nb_file(get_str_1=True, parent_dir=None):
+        input_nb_obj = tempfile.NamedTemporaryFile(dir=parent_dir, suffix=".ipynb")
+        return TestFunctions.write_nb_str_to_file_obj(input_nb_obj, get_str_1)
+
+    @staticmethod
+    def get_temp_nb_str(get_str_1):
+        nb_str_1 = """{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A non-code cell"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "x = 5\\n",
+    "y = \\"blue\\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "print(\\"x is {0} and y is {1}\\".format(x, y))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.4.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}
+"""
+        nb_str_2 = """{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A non-code cell"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "x = 5\\n",
+    "g_run_prefix = \\"blue\\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "print(\\"x is {0} and g_run_prefix is {1}\\".format(x, g_run_prefix))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.4.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}
+"""
+        return nb_str_1 if get_str_1 else nb_str_2
+
+    @staticmethod
+    def write_nb_str_to_file_obj(input_nb_obj, get_str_1=True):
+        input_nb_str = TestFunctions.get_temp_nb_str(get_str_1)
+        input_nb_obj.write(bytes(input_nb_str, 'utf-8'))
+        input_nb_obj.seek(0)
+        return input_nb_obj
+
+    @staticmethod
+    def get_html_subset(subset_name):
+
+        updated_subset_1 = """<body>
+  <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A non-code cell</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x is </span><span class="si">{0}</span><span class="s2"> and y is </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>x is 6 and y is blue
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    </div>
+  </div>
+</body>"""
+
+        updated_subset_2 = """<body>
+  <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A non-code cell</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">g_run_prefix</span> <span class="o">=</span> <span class="s1">&#39;faked_run_prefix&#39;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x is </span><span class="si">{0}</span><span class="s2"> and g_run_prefix is </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">g_run_prefix</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>x is 5 and g_run_prefix is faked_run_prefix
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    </div>
+  </div>
+</body>
+</html>"""
+
+        if subset_name == "updated_1":
+            result = updated_subset_1
+        elif subset_name == "updated_2":
+            result = updated_subset_2
+        else:
+            raise ValueError("Unrecognized subset_name '{0}'".format(subset_name))
+
+        return result
+
+
     def test_execute_run_from_full_params(self):
         temp_notebook_dir = tempfile.TemporaryDirectory()
         temp_project_dir = tempfile.TemporaryDirectory()
 
         nb_1_filename = "nb1.ipynb"
-        nb_runner_tester = ns_test_nb_runner.TestFunctions()
         nb_1_fp = os.path.join(temp_notebook_dir.name, nb_1_filename)
         with open(nb_1_fp, 'w+b') as nb1:
-            nb_runner_tester.write_nb_str_to_file_obj(nb1, get_str_1=True)
+            TestFunctions.write_nb_str_to_file_obj(nb1, get_str_1=True)
 
         nb_2_filename = "nb2.ipynb"
         nb_2_fp = os.path.join(temp_notebook_dir.name, nb_2_filename)
         with open(nb_2_fp, 'w+b') as nb2:
-            nb_runner_tester.write_nb_str_to_file_obj(nb2, get_str_1=False)
+            TestFunctions.write_nb_str_to_file_obj(nb2, get_str_1=False)
         notebooks_list = [nb_1_filename, nb_2_filename]
 
         input_params = {"x": 6,
@@ -58,7 +316,7 @@ class TestFunctions(unittest.TestCase):
         output_nb_2_html_fp = output_nb_2_fp.replace("ipynb", "html")
         with open(output_nb_2_html_fp) as f:
             real_html = f.read()
-        self.assertTrue(nb_runner_tester.get_html_subset("updated_2") in real_html)
+        self.assertTrue(TestFunctions.get_html_subset("updated_2") in real_html)
 
     def test__mangle_notebook_name(self):
         real_output = ns_test._mangle_notebook_name("   Simple Test Notebook.ipynb ", "20170000000000_testData")
@@ -114,8 +372,7 @@ class TestFunctions(unittest.TestCase):
                       "z": "red"}
 
         temp_methods_dir = tempfile.TemporaryDirectory()
-        nb_runner_tester = ns_test_nb_runner.TestFunctions()
-        temp_notebook_file_obj = nb_runner_tester.write_temp_nb_file()
+        temp_notebook_file_obj = TestFunctions.write_temp_nb_file()
         input_nb_dir, input_nb_filename = os.path.split(temp_notebook_file_obj.name)
 
         output_notebook_fp, output_html_fp = ns_test._run_and_output_notebook(input_nb_dir, input_nb_filename,
@@ -128,7 +385,7 @@ class TestFunctions(unittest.TestCase):
 
         with open(output_html_fp) as f:
             real_html = f.read()
-        self.assertTrue(nb_runner_tester.get_html_subset("updated_1") in real_html)
+        self.assertTrue(TestFunctions.get_html_subset("updated_1") in real_html)
 
     # region _add_run_prefix_and_dir_to_params
     def test__add_run_prefix_and_dir_to_params_minimal_inputs(self):
