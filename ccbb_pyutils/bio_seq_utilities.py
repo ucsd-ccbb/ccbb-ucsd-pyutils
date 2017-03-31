@@ -3,8 +3,7 @@ import logging
 import os
 import shutil
 
-# ccbb libraries
-from ccbbucsd.utilities.files_and_paths import get_filepaths_from_wildcard, get_wild_path, group_files, make_file_path
+from ccbb_pyutils.files_and_paths import get_filepaths_from_wildcard, group_files, make_file_path
 
 __author__ = "Amanda Birmingham"
 __maintainer__ = "Amanda Birmingham"

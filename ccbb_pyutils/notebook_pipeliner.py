@@ -2,9 +2,9 @@
 import os
 import re
 
-# ccbb libraries
-import ccbbucsd.utilities.analysis_run_prefixes as ns_runs
-import ccbbucsd.utilities.notebook_runner as ns_notebook
+import ccbb_pyutils.analysis_run_prefixes as ns_runs
+
+import ccbb_pyutils.notebook_runner as ns_notebook
 
 __author__ = "Amanda Birmingham"
 __maintainer__ = "Amanda Birmingham"

@@ -1,8 +1,7 @@
 # standard libraries
 import unittest
 
-# test library
-import ccbbucsd.utilities.string_utils as ns_test
+import ccbb_pyutils.string_utils as ns_test
 
 
 class TestFunctions(unittest.TestCase):

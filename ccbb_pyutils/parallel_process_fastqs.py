@@ -5,9 +5,9 @@ import multiprocessing
 import timeit
 import traceback
 
-# ccbb libraries
-from ccbbucsd.utilities.bio_seq_utilities import pair_hiseq_read_files
-from ccbbucsd.utilities.files_and_paths import get_basename_fps_tuples, get_file_name_pieces, \
+from ccbb_pyutils.bio_seq_utilities import pair_hiseq_read_files
+
+from ccbb_pyutils.files_and_paths import get_basename_fps_tuples, get_file_name_pieces, \
     get_filepaths_from_wildcard
 
 __author__ = 'Amanda Birmingham'

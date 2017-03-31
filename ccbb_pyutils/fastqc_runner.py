@@ -1,10 +1,10 @@
 # standard libraries
 import os
 
-# ccbb libraries
-from ccbbucsd.utilities.files_and_paths import verify_or_make_dir
-from ccbbucsd.utilities.parallel_process_fastqs import parallel_process_files
-from ccbbucsd.utilities.subprocess_summary import call_subprocess, summarize_subprocess
+from ccbb_pyutils.parallel_process_fastqs import parallel_process_files
+from ccbb_pyutils.subprocess_summary import call_subprocess
+
+from ccbb_pyutils.files_and_paths import verify_or_make_dir
 
 __author__ = 'Amanda Birmingham'
 __maintainer__ = "Amanda Birmingham"

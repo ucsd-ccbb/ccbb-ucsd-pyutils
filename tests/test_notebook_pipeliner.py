@@ -3,10 +3,10 @@ import os
 import tempfile
 import unittest
 
-# test library
-import ccbbucsd.utilities.notebook_pipeliner as ns_test
-import ccbbucsd.utilities.notebook_runner as ns_runner
-import ccbbucsd.utilities.tests.test_notebook_runner as ns_test_nb_runner
+import ccbb_pyutils.notebook_runner as ns_runner
+
+import ccbb_pyutils.notebook_pipeliner as ns_test
+import tests.test_notebook_runner as ns_test_nb_runner
 
 
 class TestFunctions(unittest.TestCase):

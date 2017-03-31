@@ -4,6 +4,7 @@ import subprocess
 # standard libraries
 import logging
 
+
 def strip_and_append_non_empty(an_input, output_list):
     if isinstance(an_input, bytes):
         an_input = an_input.decode("utf-8")

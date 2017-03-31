@@ -1,8 +1,8 @@
 import os
 
+from ccbb_pyutils.subprocess_summary import call_subprocess
 
-from ccbbucsd.utilities.files_and_paths import get_file_name_pieces, transform_path
-from ccbbucsd.utilities.subprocess_summary import call_subprocess
+from ccbb_pyutils.files_and_paths import get_file_name_pieces, transform_path
 
 MAKE_TAG_DIR_CMD = "makeTagDirectory"
 PEAKS_FILE_SUFFIX = "_peaks.txt"

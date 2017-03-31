@@ -1,8 +1,7 @@
 # standard libraries
 import unittest
 
-# ccbb libraries
-from ccbbucsd.utilities.bio_seq_utilities import rev_comp_canonical_dna_seq, trim_seq
+from ccbb_pyutils.bio_seq_utilities import rev_comp_canonical_dna_seq, trim_seq
 
 __author__ = "Amanda Birmingham"
 __maintainer__ = "Amanda Birmingham"

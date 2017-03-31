@@ -9,7 +9,7 @@ import sys
 import pandas
 
 # ccbb libraries
-from ccbbucsd.utilities.files_and_paths import get_basename_fps_tuples
+from ccbb_pyutils.files_and_paths import get_basename_fps_tuples
 
 ALIGN_COUNT_PIPELINES = enum.Enum('align_count_pipeline', 'STAR_HTSeq Kallisto')  # SAMstats')
 

@@ -1,8 +1,7 @@
 # standard libraries
 import unittest
 
-# test library
-import ccbbucsd.utilities.config_loader as ns_test
+import ccbb_pyutils.config_loader as ns_test
 
 
 class TestFunctions(unittest.TestCase):

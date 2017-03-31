@@ -1,15 +1,12 @@
 # standard libraries
 import os
 
-
-# third-party libraries
 import nbformat
 import nbparameterise
 from nbconvert import HTMLExporter
 from nbconvert.preprocessors import ExecutePreprocessor
 
-# ccbb libraries
-import ccbbucsd.utilities.files_and_paths as ns_files
+import ccbb_pyutils.files_and_paths as ns_files
 
 __author__ = "Amanda Birmingham"
 __maintainer__ = "Amanda Birmingham"

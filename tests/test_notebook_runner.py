@@ -4,8 +4,7 @@ import random
 import tempfile
 import unittest
 
-# test library
-import ccbbucsd.utilities.notebook_runner as ns_test
+import ccbb_pyutils.notebook_runner as ns_test
 
 
 class TestFunctions(unittest.TestCase):
