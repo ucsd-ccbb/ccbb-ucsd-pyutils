@@ -1,4 +1,5 @@
 import configparser
+import os
 
 
 def load_config_parser_from_fp(config_fp):
@@ -23,7 +24,8 @@ def load_config_section_dict(config_parser, section_name=None):
         section_name = config_parser.default_section
 
     for curr_key, _ in config_parser.items(section_name):
-        result[curr_key] = config_parser.get(section_name, curr_key)
+        # if item is not a path or path doesn't contain ~, expanduser does nothing
+        result[curr_key] = os.path.expanduser(config_parser.get(section_name, curr_key))
 
     return result
 
