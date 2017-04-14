@@ -312,6 +312,9 @@ class TestFunctions(unittest.TestCase):
         input_nb_obj.seek(0)
         return input_nb_obj
 
+    def _get_rand_ipynb_filename(self):
+        return "{0}.ipynb".format(random.randint(1000000, 9999999))
+
     def test_set_parameters(self):
         input_dict = {"x": 6,
                       "z": "red"}
@@ -336,37 +339,40 @@ class TestFunctions(unittest.TestCase):
         input_dict = {"x": 6,
                       "z": "red"}
 
-        input_nb_obj = self.write_temp_nb_file()
-        input_nb_dir, input_nb_filename = os.path.split(input_nb_obj.name)
-        output_nb_filename = "{0}.ipynb".format(random.randint(1000000, 9999999))
-        output_nb_fp = os.path.join(input_nb_dir, output_nb_filename)
+        input_nb_dir = tempfile.TemporaryDirectory()
+        input_nb_filename = self._get_rand_ipynb_filename()
+        input_nb_fp = os.path.join(input_nb_dir.name, input_nb_filename)
+        with open(input_nb_fp, "w") as f:
+            f.write(self.get_temp_nb_str(True))
 
-        try:
-            ns_test.execute_notebook(input_nb_filename, input_dict, output_nb_fp, run_path=input_nb_dir)
+        output_nb_filename = self._get_rand_ipynb_filename()
+        output_nb_fp = os.path.join(input_nb_dir.name, output_nb_filename)
 
-            # Note: not testing read_in_notebook here, just using it
-            output_nb = ns_test.read_in_notebook(output_nb_fp)
-        finally:
-            if os.path.exists(output_nb_fp):
-                os.remove(output_nb_fp)
+        output_html_fp = ns_test.execute_notebook(input_nb_filename, input_dict, output_nb_fp,
+                                                  run_path=input_nb_dir.name)
+
+        # Note: not testing read_in_notebook here, just using it
+        output_nb = ns_test.read_in_notebook(output_nb_fp)
 
         # test that the new variable has been correctly inserted and used to generate output in subsequent code cells
         self.assertEqual("x is 6 and y is blue\n", output_nb.cells[2].outputs[0]["text"])
 
+        self.assertEqual(output_nb_fp.replace("ipynb", "html"), output_html_fp)
+        with open(output_html_fp) as f:
+            real_html_output = f.read()
+        self.assertTrue(self.get_html_subset("updated_1") in real_html_output)
+
     def test_export_notebook_to_html(self):
-        input_nb_obj = self.write_temp_nb_file()
-        input_nb_dir, input_nb_filename = os.path.split(input_nb_obj.name)
+        input_nb_dir = tempfile.TemporaryDirectory()
+        input_nb_filename = self._get_rand_ipynb_filename()
+        input_nb_fp = os.path.join(input_nb_dir.name, input_nb_filename)
+        with open(input_nb_fp, "w") as f:
+            f.write(self.get_temp_nb_str(True))
 
-        output_fp = None
-        try:
-            output_fp = ns_test.export_notebook_to_html(input_nb_obj.name, input_nb_dir)
+        output_fp = ns_test.export_notebook_to_html(input_nb_fp, input_nb_dir.name)
 
-            with open(output_fp) as f:
-                real_output = f.read()
-
-        finally:
-            if os.path.exists(output_fp):
-                os.remove(output_fp)
+        with open(output_fp) as f:
+            real_output = f.read()
 
         # Note: I don't check the entire HTML file contents, because it is huge and most of it is IPython-generated
         # CSS that (a) I don't care about and (b) might change.  I only check that the HTML I care about is a subset

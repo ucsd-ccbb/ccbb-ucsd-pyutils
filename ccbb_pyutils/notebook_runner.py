@@ -53,9 +53,14 @@ def execute_notebook(notebook_filename, params_dict, notebook_filename_out, run_
     finally:
         with open(notebook_filename_out, mode='wt') as f:
             nbformat.write(new_nb, f)
+        result = export_notebook_to_html(notebook_filename_out)
+
+    return result
 
 
-def export_notebook_to_html(notebook_fp, output_dir):
+def export_notebook_to_html(notebook_fp, output_dir=None):
+    if output_dir is None:
+        output_dir = os.path.dirname(notebook_fp)
     nb = read_in_notebook(notebook_fp)
     html_exporter = HTMLExporter()
     body, resources = html_exporter.from_notebook_node(nb)

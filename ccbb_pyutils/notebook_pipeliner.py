@@ -49,8 +49,7 @@ def _add_run_prefix_and_dir_to_params(results_dir, run_params, params_preprocess
 
 def _run_and_output_notebook(notebook_dir, base_notebook_filename, params_dict, run_prefix, methods_dir):
     notebook_out_fp = _get_output_fp(base_notebook_filename, run_prefix, methods_dir, ".ipynb")
-    ns_notebook.execute_notebook(base_notebook_filename, params_dict, notebook_out_fp, run_path=notebook_dir)
-    html_out_fp = ns_notebook.export_notebook_to_html(notebook_out_fp, methods_dir)
+    html_out_fp = ns_notebook.execute_notebook(base_notebook_filename, params_dict, notebook_out_fp, run_path=notebook_dir)
     return notebook_out_fp, html_out_fp
 
 
