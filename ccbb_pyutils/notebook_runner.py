@@ -1,11 +1,14 @@
 # standard libraries
+import logging
 import os
 
+# third-party libraries
 import nbformat
 import nbparameterise
 from nbconvert import HTMLExporter
 from nbconvert.preprocessors import ExecutePreprocessor
 
+# ccbb libraries
 import ccbb_pyutils.files_and_paths as ns_files
 
 __author__ = "Amanda Birmingham"
@@ -40,11 +43,12 @@ def execute_notebook(notebook_filename, params_dict, notebook_filename_out, run_
     ep = ExecutePreprocessor(timeout=timeout, kernel_name='python3')
 
     try:
+        logging.info("Executing {0}".format(notebook_filename))
         ep.preprocess(new_nb, {'metadata': {'path': run_path}})
     except:
         msg = 'Error executing the notebook "{0}".\n\n'.format(notebook_filename)
         msg = '{0}See notebook "{1}" for the traceback.'.format(msg, notebook_filename_out)
-        print(msg)
+        logging.error(msg)
         raise
     finally:
         with open(notebook_filename_out, mode='wt') as f:
