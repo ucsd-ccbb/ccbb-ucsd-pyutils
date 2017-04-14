@@ -71,3 +71,16 @@ class TestFunctions(unittest.TestCase):
                                                       check_failure_msg=custom_msg, just_warn=False)
         self.assertTrue("There is a problem! No files with names beginning with 'myrun' and ending with '_test.txt' "
                         "were found in directory" in str(found_error.exception))
+
+    def test_expand_path_home_and_var(self):
+        home_dir = os.environ['HOME']
+        expected_dir = os.path.join(home_dir, "myfile.txt")
+
+        self.assertEqual(expected_dir, ns_test.expand_path("~/myfile.txt"))
+        self.assertEqual(expected_dir, ns_test.expand_path("$HOME/myfile.txt"))
+
+    def test_expand_path_abs(self):
+        expected_dir = os.path.join(os.getcwd(), "myfile.txt")
+        self.assertEqual(expected_dir, ns_test.expand_path("myfile.txt"))
+
+

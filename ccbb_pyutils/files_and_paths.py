@@ -231,3 +231,10 @@ def check_file_presence(directory, name_prefix, name_suffix, all_subdirs=False,
             raise RuntimeError(output_msg)
 
     return created_fps
+
+
+def expand_path(filepath):
+    result = os.path.expanduser(filepath)
+    result = os.path.expandvars(result)
+    result = os.path.abspath(result)
+    return result
