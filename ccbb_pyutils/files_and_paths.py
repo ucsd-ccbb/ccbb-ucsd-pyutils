@@ -4,6 +4,7 @@ import glob
 import logging
 import os
 import re
+import warnings
 
 __author__ = "Amanda Birmingham"
 __maintainer__ = "Amanda Birmingham"
@@ -145,14 +146,14 @@ def group_files(filepaths, regex, replacement=""):
     filepaths_by_bases = {}
 
     for curr_fp in filepaths:
-        _, file_base, _ = get_file_name_pieces(curr_fp)  
+        _, file_base, _ = get_file_name_pieces(curr_fp)
         condensed_file_base = re.sub(regex, replacement, file_base, 1)
-        
+
         if not condensed_file_base in filepaths_by_bases:
             filepaths_by_bases[condensed_file_base] = [curr_fp]
         else:
-            filepaths_by_bases[condensed_file_base].append(curr_fp)  
-    
+            filepaths_by_bases[condensed_file_base].append(curr_fp)
+
     return filepaths_by_bases
 
 
@@ -213,3 +214,20 @@ def list_and_unzip_files(fastq_top_dir, ext_name, keep_gzs):
     # examine the existing uncompressed files
     logging.info("\n{0} files:".format(ext_name))
     logging.info(summarize_filenames_for_prefix_and_suffix(fastq_top_dir, "", ext_name))
+
+
+def check_file_presence(directory, name_prefix, name_suffix, all_subdirs=False,
+                        check_failure_msg=None, just_warn=False):
+
+    created_fps = summarize_filenames_for_prefix_and_suffix(directory, name_prefix, name_suffix, all_subdirs)
+    if len(created_fps) == 0:
+        check_failure_msg = "" if check_failure_msg is None else check_failure_msg + " "
+        output_msg = "{0}No files with names beginning with '{1}' and ending with '{2}' " \
+                     "were found in directory '{3}'.".format(check_failure_msg, name_prefix, name_suffix, directory)
+
+        if just_warn:
+            warnings.warn(output_msg, RuntimeWarning)
+        else:
+            raise RuntimeError(output_msg)
+
+    return created_fps
