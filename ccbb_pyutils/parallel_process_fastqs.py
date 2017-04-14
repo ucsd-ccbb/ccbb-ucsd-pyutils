@@ -34,13 +34,15 @@ def time_function(process_name, func_name, pass_process_name_to_func, *func_args
     if pass_process_name_to_func:
         try:
             func_result = func_name(process_name, *func_args)
-        except:
-            func_result = traceback.format_exc()
+        except Exception as e:
+            logging.info(traceback.format_exc())
+            raise e
     else:
         try:
             func_result = func_name(*func_args)
-        except:
-            func_result = traceback.format_exc()
+        except Exception as e:
+            logging.info(traceback.format_exc())
+            raise e
 
     logging.info(get_elapsed_time_to_now(start_time, process_name))
     return process_name, func_result
