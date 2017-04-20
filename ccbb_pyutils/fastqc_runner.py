@@ -31,14 +31,19 @@ def run_parallel_fastqc(input_dir, output_dir, num_processors,
     return results
 
 
-def run_multiqc(fastqc_output_dir=".", multiqc_fp="multiqc"):
-    call_args = [multiqc_fp]
-    call_args.append(fastqc_output_dir)
-    call_args.extend(["--outdir={0}".format(fastqc_output_dir)])
+def run_multiqc(fastqc_results_wildpath=".", multiqc_fp="multiqc"):
+    fastqc_output_dir = os.path.dirname(fastqc_results_wildpath)
+    call_args = _generate_multiqc_args(fastqc_results_wildpath, fastqc_output_dir, multiqc_fp)
     call_subprocess(call_args)
 
     output_fp = os.path.join(fastqc_output_dir, "multiqc_report.html")
     result = os.path.relpath(output_fp)
     return result
 
+
+def _generate_multiqc_args(input_wildpath, fastqc_output_dir, multiqc_fp="multiqc"):
+    call_args = [multiqc_fp]
+    call_args.append(input_wildpath)
+    call_args.extend(["--outdir={0}".format(fastqc_output_dir)])
+    return call_args
 
