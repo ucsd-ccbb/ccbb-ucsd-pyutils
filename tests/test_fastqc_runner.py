@@ -15,7 +15,7 @@ class TestFunctions(unittest.TestCase):
         # with specified paths
         expected_output = os.path.relpath(os.path.join(os.environ["HOME"], "multiqc_report.html"))
         input_wildpath = os.path.join(os.environ["HOME"], "*_fastqc.zip")
-        real_output2 = ns_test.run_multiqc(input_wildpath, multiqc_fp="echo")
+        real_output2 = ns_test.run_multiqc(input_wildpath, os.environ["HOME"], multiqc_fp="echo")
         self.assertEqual(expected_output, real_output2)
 
     def test__generate_multiqc_args(self):

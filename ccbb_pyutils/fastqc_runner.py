@@ -35,7 +35,7 @@ def run_multiqc(fastqc_results_wildpath=".", output_dir=".", multiqc_fp="multiqc
     call_args = _generate_multiqc_args(fastqc_results_wildpath, output_dir, multiqc_fp)
     call_subprocess(call_args)
 
-    output_fp = os.path.join(fastqc_output_dir, "multiqc_report.html")
+    output_fp = os.path.join(output_dir, "multiqc_report.html")
     result = os.path.relpath(output_fp)
     return result
 
