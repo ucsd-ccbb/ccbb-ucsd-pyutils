@@ -26,7 +26,7 @@ setup(
     name='ccbb_pyutils',
 
     # Versions should comply with PEP440.
-    version='0.1.0',
+    version='0.3.0',
 
     description='A collection of utility methods used by CCBB at UCSD',
     long_description=long_description,
@@ -74,7 +74,7 @@ setup(
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed.
-    install_requires=['nbformat', 'nbparameterise', 'pandas'],
+    install_requires=['matplotlib','nbformat', 'nbparameterise', 'pandas'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
