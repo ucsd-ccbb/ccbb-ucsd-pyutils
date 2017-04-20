@@ -26,7 +26,7 @@ setup(
     name='ccbb_pyutils',
 
     # Versions should comply with PEP440.
-    version='0.3.2',
+    version='0.3.3',
 
     description='A collection of utility methods used by CCBB at UCSD',
     long_description=long_description,

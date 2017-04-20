@@ -3,6 +3,7 @@ import enum
 import glob
 import os
 import warnings
+import zipfile
 
 # third-party libraries
 import matplotlib.pyplot as plt
@@ -61,6 +62,10 @@ def get_fastqc_results(fastqc_results_dir, labels_of_interest, count_fail_thresh
     total_fail_msg = _get_thresh_fail_msgs(count_fail_threshold, result, _get_total_str())
     result = _combine_msgs_and_decide_status(result, fail_msg, total_fail_msg, result[_get_fastqc_statuses_str()])
     result = result.drop(_get_fastqc_statuses_str(), axis=1)
+
+    if result.empty:
+        warnings.warn("No fastqc results were found in directory '{0}'".format(fastqc_results_dir))
+
     return result
 
 
@@ -77,6 +82,9 @@ def get_alignments_stats_df(align_count_pipeline_val, pipeline_output_dir, num_t
                             percent_aligned_threshold=None, percent_unique_aligned_threshold=None):
     parse_stats_func = _get_parser_for_pipeline(align_count_pipeline_val)
     basic_stats_df = parse_stats_func(pipeline_output_dir)
+    if basic_stats_df.empty:
+        warnings.warn("No alignment statistics were found in directory '{0}'".format(pipeline_output_dir))
+
     result = _annotate_stats(basic_stats_df, num_total_threshold, num_aligned_threshold, num_unique_aligned_threshold,
                              percent_aligned_threshold, percent_unique_aligned_threshold)
     return result
@@ -220,28 +228,45 @@ def _get_fastqc_statuses(fastqc_results_dir, *func_args):
 
 def _loop_over_fastqc_files(fastqc_results_dir, file_suffix, parse_func, *func_args):
     rows_list = []
+    fastqc_suffix = "_fastqc"
+    zip_suffix = ".zip"
+
+    def collect_record(a_file_handle, *any_func_args):
+        curr_record = {}
+
+        for line in a_file_handle:
+            curr_record = parse_func(line, curr_record, *any_func_args)
+
+        if len(curr_record) > 0:
+            rows_list.append(curr_record)
 
     fastqc_results_dir = os.path.abspath(fastqc_results_dir)
     for root, dirnames, filenames in os.walk(fastqc_results_dir):
         for dirname in dirnames:
-            if dirname.endswith("_fastqc"):
+            if dirname.endswith(fastqc_suffix):
                 file_fp = os.path.join(root, dirname, file_suffix)
-                with open(file_fp, "r") as file_handle:
-                    curr_record = {}
+                with open(file_fp, "rb") as summary_file:
+                    collect_record(summary_file, *func_args)
 
-                    for line in file_handle:
-                        curr_record = parse_func(line, curr_record, *func_args)
-
-                    if len(curr_record) > 0:
-                        rows_list.append(curr_record)
+        for filename in filenames:
+            if filename.endswith(fastqc_suffix + zip_suffix):
+                file_fp = os.path.join(fastqc_results_dir, filename)
+                with zipfile.ZipFile(file_fp) as fastqc_zip:
+                    summary_name = os.path.join(filename.replace(zip_suffix, ""), file_suffix)
+                    with fastqc_zip.open(summary_name, 'r') as summary_file:
+                        collect_record(summary_file, *func_args)
 
     outputDf = pandas.DataFrame(rows_list)
+    outputDf.sort_values(_get_name_str(), axis=0, inplace=True)
+    outputDf.reset_index(drop=True, inplace=True)
     return outputDf
 
 
 def _find_total_seqs_from_fastqc(line, curr_record):
     filename_str = "Filename"
     total_str = "Total Sequences"
+
+    line = _decode_if_needed(line)
 
     if line.startswith(filename_str):
         temp = line.replace(filename_str, "").strip()
@@ -256,6 +281,7 @@ def _find_total_seqs_from_fastqc(line, curr_record):
 
 
 def _find_fastqc_statuses_from_fastqc(line, curr_record, labels_of_interest):
+    line = _decode_if_needed(line)
     fields = line.split("\t")
 
     if not _get_name_str() in curr_record:
@@ -269,6 +295,17 @@ def _find_fastqc_statuses_from_fastqc(line, curr_record, labels_of_interest):
             curr_record[_get_fastqc_statuses_str()].append(fields[0] + ": " + fields[1])
 
     return curr_record
+
+
+def _decode_if_needed(an_input, encoding="utf-8"):
+    try:
+        an_input.decode
+    except AttributeError:
+        result = an_input
+    else:
+        result = an_input.decode(encoding)
+
+    return result
 
 
 def _combine_fastqc_and_alignment_stats(fastqc_results_wo_msgs_df, alignment_stats_df,

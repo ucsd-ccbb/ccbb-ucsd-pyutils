@@ -137,12 +137,14 @@ class TestFunctions(unittest.TestCase):
 
     def test__get_fastqc_total_seqs(self):
         expected_data = [
-            {'Total Reads': 32416013.0, 'Sample': 'ARH1_S1'},
-            {'Total Reads': 37658828.0, 'Sample': 'ARH3_S3'}]
+            {'Total Reads': 32416013.00000, 'Sample': 'ARH1_S1'},
+            {'Total Reads': 37658828.00000, 'Sample': 'ARH3_S3'}]
         expected_output = pandas.DataFrame(expected_data)
 
         real_output = ns_test._get_fastqc_total_seqs(self._get_fastqc_test_data_dir())
-        self.assertTrue(expected_output.equals(real_output))
+        real_output_rounded = real_output.round(5)
+
+        self.assertTrue(expected_output.equals(real_output_rounded))
 
     def test__get_fastqc_results_without_msgs(self):
         expected_data = [
