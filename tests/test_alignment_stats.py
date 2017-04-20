@@ -1,6 +1,6 @@
 # standard libraries
+import enum
 import io
-import os
 import unittest
 
 # third-party libraries
@@ -410,3 +410,17 @@ class TestFunctions(unittest.TestCase):
                                              "Percent Aligned": "Unavailable"}])
         real_output = ns_test.prune_unavailable_stats(input_sorted)
         self.assertTrue(real_output.empty)
+
+    def test__get_parser_for_pipeline_star(self):
+        real_output = ns_test._get_parser_for_pipeline(ns_test.get_align_count_pipelines().STAR_HTSeq)
+        self.assertEqual("parse_star_alignment_stats", real_output.__name__)
+
+    def test__get_parser_for_pipeline_kallisto(self):
+        real_output = ns_test._get_parser_for_pipeline(ns_test.get_align_count_pipelines().Kallisto)
+        self.assertEqual("parse_kallisto_alignment_stats", real_output.__name__)
+
+    def test__get_parser_for_pipeline_error(self):
+        fake_enum = enum.Enum('align_count_pipeline', 'kablooie')
+
+        with self.assertRaises(ValueError):
+            ns_test._get_parser_for_pipeline(fake_enum.kablooie)

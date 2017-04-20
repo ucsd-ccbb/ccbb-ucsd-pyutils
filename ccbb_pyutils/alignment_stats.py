@@ -42,9 +42,7 @@ def get_fastqc_and_alignment_summary_stats(align_count_pipeline_val, pipeline_ou
                                                  percent_aligned_threshold,
                                                  percent_unique_aligned_threshold)
 
-    result = _combine_fastqc_and_alignment_stats(fastqc_results_df, alignment_stats_df, num_total_threshold,
-                                                 num_aligned_threshold, num_unique_aligned_threshold,
-                                                 percent_aligned_threshold, percent_unique_aligned_threshold)
+    result = _combine_fastqc_and_alignment_stats(fastqc_results_df, alignment_stats_df, num_total_threshold)
 
     return result
 
@@ -158,15 +156,15 @@ def parse_kallisto_alignment_stats(pipeline_output_dir):
 def _get_parser_for_pipeline(align_count_pipeline_val):
     pipelines = get_align_count_pipelines()
 
-    if align_count_pipeline_val == pipelines.Kallisto:
+    if align_count_pipeline_val.name == pipelines.Kallisto.name:
         result_func = parse_kallisto_alignment_stats
-    elif align_count_pipeline_val == pipelines.STAR_HTSeq:
+    elif align_count_pipeline_val.name == pipelines.STAR_HTSeq.name:
         result_func = parse_star_alignment_stats
     # elif align_count_pipeline_val == ALIGN_COUNT_PIPELINES.SAMstats:
     #    result_func = parse_samstats_alignment_stats
     else:
         raise ValueError(("Unrecognized alignment and counting "
-                          "pipeline specified: '{0}'").format(align_count_pipeline_val))
+                          "pipeline specified: '{0}'").format(align_count_pipeline_val.name))
 
     return result_func
 
