@@ -7,6 +7,7 @@ import zipfile
 
 # third-party libraries
 import matplotlib.pyplot as plt
+import natsort
 import pandas
 
 
@@ -36,13 +37,13 @@ def get_fastqc_and_alignment_summary_stats(align_count_pipeline_val, pipeline_ou
                                            percent_unique_aligned_threshold=None):
 
     fastqc_results_df = _get_fastqc_results_without_msgs(pipeline_output_dir, labels_of_interest)
-    alignment_stats_df = get_alignments_stats_df(align_count_pipeline_val, pipeline_output_dir,
+    alignment_stats_df = get_alignments_stats_df(align_count_pipeline_val, pipeline_output_dir, _get_default_fail_msg(),
                                                  num_total_threshold, num_aligned_threshold,
                                                  num_unique_aligned_threshold,
                                                  percent_aligned_threshold,
                                                  percent_unique_aligned_threshold)
 
-    result = _combine_fastqc_and_alignment_stats(fastqc_results_df, alignment_stats_df, num_total_threshold)
+    result = _combine_fastqc_and_alignment_stats(fastqc_results_df, alignment_stats_df)
 
     return result
 
@@ -75,16 +76,16 @@ def _get_fastqc_results_without_msgs(fastqc_results_dir, labels_of_interest):
     return result
 
 
-def get_alignments_stats_df(align_count_pipeline_val, pipeline_output_dir, num_total_threshold=None,
-                            num_aligned_threshold=None, num_unique_aligned_threshold=None,
+def get_alignments_stats_df(align_count_pipeline_val, pipeline_output_dir, fail_msg=_get_default_fail_msg(),
+                            num_total_threshold=None, num_aligned_threshold=None, num_unique_aligned_threshold=None,
                             percent_aligned_threshold=None, percent_unique_aligned_threshold=None):
     parse_stats_func = _get_parser_for_pipeline(align_count_pipeline_val)
     basic_stats_df = parse_stats_func(pipeline_output_dir)
     if basic_stats_df.empty:
         warnings.warn("No alignment statistics were found in directory '{0}'".format(pipeline_output_dir))
 
-    result = _annotate_stats(basic_stats_df, num_total_threshold, num_aligned_threshold, num_unique_aligned_threshold,
-                             percent_aligned_threshold, percent_unique_aligned_threshold)
+    result = _annotate_stats(basic_stats_df, fail_msg, num_total_threshold, num_aligned_threshold,
+                             num_unique_aligned_threshold, percent_aligned_threshold, percent_unique_aligned_threshold)
     return result
 
 
@@ -108,9 +109,8 @@ def parse_star_alignment_stats(pipeline_output_dir):
 
     alignment_stats = pandas.DataFrame()
     for curr_summary_path in summary_filepaths:
-        filename = curr_summary_path.replace(pipeline_output_dir + "/", "")
-        filename2 = filename.replace("/Log.final.out", "")
-        p = _parse_star_log_final_out(filename2, curr_summary_path)
+        sample_name = os.path.split(os.path.dirname(curr_summary_path))[1]
+        p = _parse_star_log_final_out(sample_name, curr_summary_path)
         alignment_stats = alignment_stats.append(p)
     return alignment_stats
 
@@ -255,9 +255,18 @@ def _loop_over_fastqc_files(fastqc_results_dir, file_suffix, parse_func, *func_a
                         collect_record(summary_file, *func_args)
 
     outputDf = pandas.DataFrame(rows_list)
-    outputDf.sort_values(_get_name_str(), axis=0, inplace=True)
-    outputDf.reset_index(drop=True, inplace=True)
-    return outputDf
+    result = _natsort_df_by_sample_names(outputDf)
+    return result
+
+
+def _natsort_df_by_sample_names(input_df):
+    temp_df = input_df.copy()
+    orig_names_list = input_df[_get_name_str()]
+    temp_df.index = orig_names_list.copy()
+    nat_sorted_names = natsort.natsorted(orig_names_list)
+    result = temp_df.reindex(nat_sorted_names)
+    result.reset_index(drop=True, inplace=True)
+    return result
 
 
 def _find_total_seqs_from_fastqc(line, curr_record):
@@ -314,8 +323,7 @@ def _combine_fastqc_and_alignment_stats(fastqc_results_wo_msgs_df, alignment_sta
     result = pandas.merge(fastqc_input_df, alignment_stats_df, how='outer',
                           on=[_get_name_str()])
     if len(result.index) != len(fastqc_results_wo_msgs_df.index):
-        warnings.warn("fastqc and alignment statistics cannot be merged 1:1 on sample name",
-                      RuntimeWarning)
+        raise RuntimeError("fastqc and alignment statistics cannot be merged 1:1 on sample name")
     result = _combine_msgs_and_decide_status(result, fail_msg, result[_get_fastqc_statuses_str()],
                                              result[_get_notes_str()])
     result = result.drop(_get_fastqc_statuses_str(), axis=1)

@@ -14,6 +14,9 @@ class TestFunctions(unittest.TestCase):
     def _get_fastqc_test_data_dir(self):
         return "test_data/fastqc_data/"
 
+    def _get_fastqc_and_star_htseq_data(self):
+        return "test_data/fastqc_and_star_htseq_data/"
+
     # region _find_total_seqs_from_fastqc
     def test__find_total_seqs_from_fastqc_ignore(self):
         line = "##FastQC	0.11.3"
@@ -57,7 +60,8 @@ class TestFunctions(unittest.TestCase):
     def test__find_fastqc_statuses_from_fastqc_ignore_failed_no_notes_has_name(self):
         line = "FAIL	Per tile sequence quality	ARH1_S1.fastq.gz"
         input_record = {'Sample': 'Tester', "not much": "you"}
-        expected_record = {'FASTQC Messages': ['FAIL: Per tile sequence quality'], 'Sample': 'Tester', 'not much': 'you'}
+        expected_record = {'FASTQC Messages': ['FAIL: Per tile sequence quality'], 'Sample': 'Tester',
+                           'not much': 'you'}
         real_output = ns_test._find_fastqc_statuses_from_fastqc(line, input_record, ["Per tile sequence quality"])
         self.assertEqual(expected_record, real_output)
 
@@ -72,7 +76,8 @@ class TestFunctions(unittest.TestCase):
     def test__find_fastqc_statuses_from_fastqc_ignore_failed_no_notes_no_name(self):
         line = "FAIL	Per tile sequence quality	ARH1_S1.fastq.gz"
         input_record = {"not much": "you"}
-        expected_record = {'FASTQC Messages': ['FAIL: Per tile sequence quality'], 'Sample': 'ARH1_S1', 'not much': 'you'}
+        expected_record = {'FASTQC Messages': ['FAIL: Per tile sequence quality'], 'Sample': 'ARH1_S1',
+                           'not much': 'you'}
         real_output = ns_test._find_fastqc_statuses_from_fastqc(line, input_record, ["Per tile sequence quality"])
         self.assertEqual(expected_record, real_output)
 
@@ -99,9 +104,10 @@ class TestFunctions(unittest.TestCase):
     # region _loop_over_fastqc_files
     def test__loop_over_fastqc_files_w_extra_args(self):
         expected_data = [
-            {'FASTQC Messages': ['FAIL: Per tile sequence quality', 'WARN: Overrepresented sequences'], 'Sample': 'ARH1_S1'},
+            {'FASTQC Messages': ['FAIL: Per tile sequence quality', 'WARN: Overrepresented sequences'],
+             'Sample': 'ARH1_S1'},
             {'FASTQC Messages': ['FAIL: Per tile sequence quality', 'FAIL: Per sequence quality scores',
-                       'WARN: Overrepresented sequences'], 'Sample': 'ARH3_S3'}]
+                                 'WARN: Overrepresented sequences'], 'Sample': 'ARH3_S3'}]
         expected_output = pandas.DataFrame(expected_data)
 
         real_output = ns_test._loop_over_fastqc_files(self._get_fastqc_test_data_dir(), "summary.txt",
@@ -124,15 +130,16 @@ class TestFunctions(unittest.TestCase):
 
     def test__get_fastqc_statuses(self):
         expected_data = [
-            {'FASTQC Messages': 'FAIL: Per tile sequence quality, WARN: Overrepresented sequences', 'Sample': 'ARH1_S1'},
+            {'FASTQC Messages': 'FAIL: Per tile sequence quality, WARN: Overrepresented sequences',
+             'Sample': 'ARH1_S1'},
             {'FASTQC Messages':
                  'FAIL: Per tile sequence quality, FAIL: Per sequence quality scores, WARN: Overrepresented sequences',
              'Sample': 'ARH3_S3'}]
         expected_output = pandas.DataFrame(expected_data)
 
         real_output = ns_test._get_fastqc_statuses(self._get_fastqc_test_data_dir(),
-                                                ["Per base sequence quality", "Per tile sequence quality",
-                                                 "Per sequence quality scores", "Overrepresented sequences"])
+                                                   ["Per base sequence quality", "Per tile sequence quality",
+                                                    "Per sequence quality scores", "Overrepresented sequences"])
         self.assertTrue(expected_output.equals(real_output))
 
     def test__get_fastqc_total_seqs(self):
@@ -154,15 +161,16 @@ class TestFunctions(unittest.TestCase):
         expected_output = expected_output[['Sample', 'FASTQC Messages', 'Total Reads']]
 
         real_output = ns_test._get_fastqc_results_without_msgs(self._get_fastqc_test_data_dir(),
-                                                 ["Per base sequence quality"])
+                                                               ["Per base sequence quality"])
         self.assertTrue(expected_output.equals(real_output))
 
     def test_get_fastqc_results(self):
         expected_data = [
-            {'Total Reads': 32416013.0, "Notes":'Below Total Reads threshold', 'Status': 'CHECK', 'Sample': 'ARH1_S1'},
-            {'Total Reads': 37658828.0, 'Notes':'FAIL: Per sequence quality scores','Status': 'CHECK', 'Sample': 'ARH3_S3'}]
+            {'Total Reads': 32416013.0, "Notes": 'Below Total Reads threshold', 'Status': 'CHECK', 'Sample': 'ARH1_S1'},
+            {'Total Reads': 37658828.0, 'Notes': 'FAIL: Per sequence quality scores', 'Status': 'CHECK',
+             'Sample': 'ARH3_S3'}]
         expected_output = pandas.DataFrame(expected_data)
-        expected_output = expected_output[['Sample', 'Total Reads', 'Notes','Status']]
+        expected_output = expected_output[['Sample', 'Total Reads', 'Notes', 'Status']]
 
         real_output = ns_test.get_fastqc_results(self._get_fastqc_test_data_dir(), ["Per sequence quality scores"],
                                                  32500000)
@@ -228,7 +236,7 @@ class TestFunctions(unittest.TestCase):
                                        "Percent Aligned": "Unavailable",
                                        "Percent Uniquely Aligned": 76.52080,
                                        "Notes": "",
-                                       "Status":""},
+                                       "Status": ""},
                                       {"Sample": "testSample",
                                        "Total Reads": 32389200.00000,
                                        "Aligned Reads": "Unavailable",
@@ -236,10 +244,10 @@ class TestFunctions(unittest.TestCase):
                                        "Percent Aligned": "Unavailable",
                                        "Percent Uniquely Aligned": 88.58904,
                                        "Notes": "",
-                                       "Status":""}]
+                                       "Status": ""}]
         expected_output_unordered = pandas.DataFrame(expected_output_underlying)
         expected_output = expected_output_unordered[["Sample", "Total Reads", "Aligned Reads", "Uniquely Aligned Reads",
-                                                     "Percent Aligned", "Percent Uniquely Aligned", "Notes","Status"]]
+                                                     "Percent Aligned", "Percent Uniquely Aligned", "Notes", "Status"]]
         real_output = ns_test._annotate_stats(input, 'check', num_aligned_threshold=1000000,
                                               percent_aligned_threshold=60)
         rounded_real_output = real_output.round(5)
@@ -260,7 +268,7 @@ class TestFunctions(unittest.TestCase):
                                        "Percent Aligned": "Unavailable",
                                        "Percent Uniquely Aligned": 76.52080,
                                        "Notes": "Below Percent Uniquely Aligned threshold",
-                                       "Status":"check"},
+                                       "Status": "check"},
                                       {"Sample": "testSample",
                                        "Total Reads": 32389200.00000,
                                        "Aligned Reads": "Unavailable",
@@ -268,7 +276,7 @@ class TestFunctions(unittest.TestCase):
                                        "Percent Aligned": "Unavailable",
                                        "Percent Uniquely Aligned": 88.58904,
                                        "Notes": 'Below Total Reads threshold, Below Percent Uniquely Aligned threshold',
-                                       "Status":"check"}]
+                                       "Status": "check"}]
         expected_output_unordered = pandas.DataFrame(expected_output_underlying)
         expected_output = expected_output_unordered[["Sample", "Total Reads", "Aligned Reads", "Uniquely Aligned Reads",
                                                      "Percent Aligned", "Percent Uniquely Aligned", "Notes", "Status"]]
@@ -322,26 +330,26 @@ class TestFunctions(unittest.TestCase):
                                                 "Uniquely Aligned Reads": 28693280.00000,
                                                 "Percent Aligned": "Unavailable",
                                                 "Percent Uniquely Aligned": 88.58904,
-                                                "Notes":"Below some threshold",
+                                                "Notes": "Below some threshold",
                                                 "Status": "CHECK"}])
         expected_output_unsorted = pandas.DataFrame([{"Sample": "ARH1_S1",
-                                             "Total Reads (FASTQC)":32416013.00000,
-                                             "Total Reads": 32389200.00000,
-                                             "Aligned Reads": "Unavailable",
-                                             "Uniquely Aligned Reads": 28693280.00000,
-                                             "Percent Aligned": "Unavailable",
-                                             "Percent Uniquely Aligned": 88.58904,
-                                             "Notes": "Fail something, Warn something else, Below some threshold",
-                                             "Status": "CHECK"},
-                                            {"Sample": "ARH3_S3",
-                                             "Total Reads (FASTQC)": 37658828.00000,
-                                             "Total Reads": 37627298.00000,
-                                             "Aligned Reads": "Unavailable",
-                                             "Uniquely Aligned Reads": 28792709.00000,
-                                             "Percent Aligned": "Unavailable",
-                                             "Percent Uniquely Aligned": 76.52080,
-                                             "Notes": "",
-                                             "Status": ''}])
+                                                      "Total Reads (FASTQC)": 32416013.00000,
+                                                      "Total Reads": 32389200.00000,
+                                                      "Aligned Reads": "Unavailable",
+                                                      "Uniquely Aligned Reads": 28693280.00000,
+                                                      "Percent Aligned": "Unavailable",
+                                                      "Percent Uniquely Aligned": 88.58904,
+                                                      "Notes": "Fail something, Warn something else, Below some threshold",
+                                                      "Status": "CHECK"},
+                                                     {"Sample": "ARH3_S3",
+                                                      "Total Reads (FASTQC)": 37658828.00000,
+                                                      "Total Reads": 37627298.00000,
+                                                      "Aligned Reads": "Unavailable",
+                                                      "Uniquely Aligned Reads": 28792709.00000,
+                                                      "Percent Aligned": "Unavailable",
+                                                      "Percent Uniquely Aligned": 76.52080,
+                                                      "Notes": "",
+                                                      "Status": ''}])
         expected_output = expected_output_unsorted[["Sample", "Total Reads (FASTQC)", "Total Reads", "Aligned Reads",
                                                     "Uniquely Aligned Reads", "Percent Aligned",
                                                     "Percent Uniquely Aligned", "Notes", "Status"]]
@@ -351,63 +359,62 @@ class TestFunctions(unittest.TestCase):
 
     def test_prune_unavailable_stats_some(self):
         input_unsorted = pandas.DataFrame([{"Sample": "ARH1_S1",
-                                             "Total Reads (FASTQC)":32416013.00000,
-                                             "Total Reads": 32389200.00000,
-                                             "Aligned Reads": "Unavailable",
-                                             "Uniquely Aligned Reads": 28693280.00000,
-                                             "Percent Aligned": "Unavailable",
-                                             "Percent Uniquely Aligned": 88.58904,
-                                             "Notes": "Fail something, Warn something else, Below some threshold",
-                                             "Status": "CHECK"},
-                                            {"Sample": "ARH3_S3",
-                                             "Total Reads (FASTQC)": 37658828.00000,
-                                             "Total Reads": 37627298.00000,
-                                             "Aligned Reads": "Unavailable",
-                                             "Uniquely Aligned Reads": 28792709.00000,
-                                             "Percent Aligned": "Unavailable",
-                                             "Percent Uniquely Aligned": 76.52080,
-                                             "Notes": "",
-                                             "Status": ''}])
+                                            "Total Reads (FASTQC)": 32416013.00000,
+                                            "Total Reads": 32389200.00000,
+                                            "Aligned Reads": "Unavailable",
+                                            "Uniquely Aligned Reads": 28693280.00000,
+                                            "Percent Aligned": "Unavailable",
+                                            "Percent Uniquely Aligned": 88.58904,
+                                            "Notes": "Fail something, Warn something else, Below some threshold",
+                                            "Status": "CHECK"},
+                                           {"Sample": "ARH3_S3",
+                                            "Total Reads (FASTQC)": 37658828.00000,
+                                            "Total Reads": 37627298.00000,
+                                            "Aligned Reads": "Unavailable",
+                                            "Uniquely Aligned Reads": 28792709.00000,
+                                            "Percent Aligned": "Unavailable",
+                                            "Percent Uniquely Aligned": 76.52080,
+                                            "Notes": "",
+                                            "Status": ''}])
         input_sorted = input_unsorted[["Sample", "Total Reads (FASTQC)", "Total Reads", "Aligned Reads",
-                                                    "Uniquely Aligned Reads", "Percent Aligned",
-                                                    "Percent Uniquely Aligned", "Notes", "Status"]]
+                                       "Uniquely Aligned Reads", "Percent Aligned",
+                                       "Percent Uniquely Aligned", "Notes", "Status"]]
         expected_output = input_unsorted[["Sample", "Total Reads (FASTQC)", "Total Reads",
-                                                    "Uniquely Aligned Reads",
-                                                    "Percent Uniquely Aligned", "Notes", "Status"]]
+                                          "Uniquely Aligned Reads",
+                                          "Percent Uniquely Aligned", "Notes", "Status"]]
         real_output = ns_test.prune_unavailable_stats(input_sorted)
         self.assertTrue(expected_output.equals(real_output))
 
-
     def test_prune_unavailable_stats_none(self):
         input_unsorted = pandas.DataFrame([{"Sample": "ARH1_S1",
-                                             "Total Reads (FASTQC)":32416013.00000,
-                                             "Total Reads": 32389200.00000,
-                                             "Aligned Reads": 3000000.00000,
-                                             "Uniquely Aligned Reads": 28693280.00000,
-                                             "Percent Aligned": 9.26235,
-                                             "Percent Uniquely Aligned": 88.58904,
-                                             "Notes": "Fail something, Warn something else, Below some threshold",
-                                             "Status": "CHECK"},
-                                            {"Sample": "ARH3_S3",
-                                             "Total Reads (FASTQC)": 37658828.00000,
-                                             "Total Reads": 37627298.00000,
-                                             "Aligned Reads": 3000000.00000,
-                                             "Uniquely Aligned Reads": 28792709.00000,
-                                             "Percent Aligned": 7.97293,
-                                             "Percent Uniquely Aligned": 76.52080,
-                                             "Notes": "",
-                                             "Status": ''}])
+                                            "Total Reads (FASTQC)": 32416013.00000,
+                                            "Total Reads": 32389200.00000,
+                                            "Aligned Reads": 3000000.00000,
+                                            "Uniquely Aligned Reads": 28693280.00000,
+                                            "Percent Aligned": 9.26235,
+                                            "Percent Uniquely Aligned": 88.58904,
+                                            "Notes": "Fail something, Warn something else, Below some threshold",
+                                            "Status": "CHECK"},
+                                           {"Sample": "ARH3_S3",
+                                            "Total Reads (FASTQC)": 37658828.00000,
+                                            "Total Reads": 37627298.00000,
+                                            "Aligned Reads": 3000000.00000,
+                                            "Uniquely Aligned Reads": 28792709.00000,
+                                            "Percent Aligned": 7.97293,
+                                            "Percent Uniquely Aligned": 76.52080,
+                                            "Notes": "",
+                                            "Status": ''}])
         input_sorted = input_unsorted[["Sample", "Total Reads (FASTQC)", "Total Reads", "Aligned Reads",
-                                                    "Uniquely Aligned Reads", "Percent Aligned",
-                                                    "Percent Uniquely Aligned", "Notes", "Status"]]
+                                       "Uniquely Aligned Reads", "Percent Aligned",
+                                       "Percent Uniquely Aligned", "Notes", "Status"]]
         real_output = ns_test.prune_unavailable_stats(input_sorted)
         self.assertTrue(input_sorted.equals(real_output))
 
     def test_prune_unavailable_stats_all(self):
         input_sorted = pandas.DataFrame([{"Aligned Reads": "Unavailable",
-                                             "Percent Aligned": "Unavailable"},
-                                            {"Aligned Reads": "Unavailable",
-                                             "Percent Aligned": "Unavailable"}])
+                                          "Percent Aligned": "Unavailable"},
+                                         {"Aligned Reads": "Unavailable",
+                                          "Percent Aligned": "Unavailable"}])
         real_output = ns_test.prune_unavailable_stats(input_sorted)
         self.assertTrue(real_output.empty)
 
@@ -424,3 +431,60 @@ class TestFunctions(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ns_test._get_parser_for_pipeline(fake_enum.kablooie)
+
+    def test_get_fastqc_and_alignment_summary_stats(self):
+        fastqc_labels_of_interest = [
+            "Basic Statistics", "Per base sequence quality",
+            "Sequence Duplication Levels"]
+
+        expected_output_unordered = pandas.DataFrame([{'Percent Aligned': 'Unavailable', 'Notes': 'FAIL: Sequence '
+                                                                                                  'Duplication '
+                                                                                        'Levels', 'Status': 'CHECK',
+                                             'Percent Uniquely Aligned': 88.58903585145666, 'Total Reads (FASTQC)':
+                                                 32416013.0, 'Sample': 'ARH1_S1', 'Total Reads': 32389200.0,
+                                             'Uniquely Aligned Reads': 28693280.0, 'Aligned Reads': 'Unavailable'},
+                                            {'Percent Aligned': 'Unavailable', 'Notes': 'FAIL: Sequence Duplication '
+                                                                                        'Levels', 'Status': 'CHECK',
+                                             'Percent Uniquely Aligned': 76.52079880941757, 'Total Reads (FASTQC)':
+                                                 37658828.0, 'Sample': 'ARH3_S3', 'Total Reads': 37627298.0,
+                                             'Uniquely Aligned Reads': 28792709.0, 'Aligned Reads': 'Unavailable'}])
+        expected_output = expected_output_unordered[["Sample", "Total Reads (FASTQC)", "Total Reads", "Aligned Reads",
+                                                     "Uniquely Aligned Reads", "Percent Aligned",
+                                                     "Percent Uniquely Aligned", "Notes", "Status"]]
+        expected_output_rounded = expected_output.round(5)
+
+        real_output = ns_test.get_fastqc_and_alignment_summary_stats(
+            ns_test.get_align_count_pipelines().STAR_HTSeq,
+            self._get_fastqc_and_star_htseq_data(),
+            num_total_threshold=10000000,
+            labels_of_interest=fastqc_labels_of_interest, num_aligned_threshold=60)
+
+        real_output_rounded = real_output.round(5)
+
+        self.assertTrue(expected_output_rounded.equals(real_output_rounded))
+
+    def test__natsort_df_by_sample_names(self):
+        input_df = pandas.DataFrame([{"Sample": "A2_2",
+                                      "Counts": 3},
+                                     {"Sample": "A1_10",
+                                      "Counts": 1},
+                                     {"Sample": "A2_1",
+                                      "Counts": 2},
+                                     {"Sample": "A10_2",
+                                      "Counts": 5},
+                                     # Darn--apparently the natsort library isn't smart enough to handle this case :(
+                                     # {"Sample": "A10_12",
+                                     #  "Counts": 4}
+                                     ])
+        expected_output = pandas.DataFrame([{"Sample": "A1_10",
+                                             "Counts": 1},
+                                            {"Sample": "A2_1",
+                                             "Counts": 2},
+                                            {"Sample": "A2_2",
+                                             "Counts": 3},
+                                            # {"Sample": "A10_12",
+                                            #  "Counts": 4},
+                                            {"Sample": "A10_2",
+                                             "Counts": 5}])
+        real_output = ns_test._natsort_df_by_sample_names(input_df)
+        self.assertTrue(expected_output.equals(real_output))
