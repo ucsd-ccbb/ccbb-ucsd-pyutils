@@ -94,7 +94,7 @@ def make_aligned_reads_plot(summary_stats_df):
     plt.figure(figsize=(10,10))
     ax = plt.subplot(111)
     summary_stats_df[[_get_name_str(), _get_total_str(),
-        _get_percent_unique_aligned_str()]].plot(ax=ax, kind='bar', title='# of Reads')
+        _get_uniquely_aligned_str()]].plot(ax=ax, kind='bar', title='# of Reads')
     #ax.axis(x='off')
     ax.axhline(y=10000000, linewidth=2, color='Red', zorder=0)
     xTickMarks = [x for x in summary_stats_df.Sample.tolist()]
